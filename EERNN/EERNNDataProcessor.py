@@ -38,6 +38,11 @@ class EERNNDataProcessor(object):
         tmp_pro = tf.keras.preprocessing.sequence.pad_sequences(pro_dic, value=0, padding='post', truncating='post',maxlen=maxLen)
         tmp_cor = tf.keras.preprocessing.sequence.pad_sequences(cor_dic, value=0, padding='post', truncating='post', maxlen=maxLen)
         data = np.concatenate((tmp_pro, tmp_cor), axis=1)
+        onehot_matrix = np.zeros((2, 4 * LSTM_UNITS))
+        onehot_matrix[0] = [0] * 2 * LSTM_UNITS + [1] * 2 * LSTM_UNITS
+        onehot_matrix[1] = [1] * 2 * LSTM_UNITS + [0] * 2 * LSTM_UNITS
+
+        pro_dic, embedding_matrix = self.OJProblem.Problem2Tensor()
 
         train_data, test_data = train_test_split(data, test_size=0.2, random_state=0)
         print('train_data', train_data.shape)
@@ -49,13 +54,8 @@ class EERNNDataProcessor(object):
         dataset_test_cor = tf.data.Dataset.from_tensor_slices(test_data[:, maxLen:])
         dataset_test = tf.data.Dataset.zip((dataset_test_pro, dataset_test_cor))
 
-        dataset_train = dataset_train.shuffle(buffer_size=tf.constant(SHUFFLE_BUFFER_SIZE, dtype=tf.int64)).batch(BATCH_SIZE, drop_remainder=True)
+        dataset_train = dataset_train.shuffle(buffer_size=tf.constant(SHUFFLE_BUFFER_SIZE, dtype=tf.int64)).batch(
+            BATCH_SIZE, drop_remainder=True)
         # .repeat(1).prefetch(PREFETCH_SIZE).
         dataset_test = dataset_test.prefetch(PREFETCH_SIZE).batch(BATCH_SIZE, drop_remainder=True)
-
-        onehot_matrix = np.zeros((2, 4 * LSTM_UNITS))
-        onehot_matrix[0] = [0] * 2 * LSTM_UNITS + [1] * 2 * LSTM_UNITS
-        onehot_matrix[1] = [1] * 2 * LSTM_UNITS + [0] * 2 * LSTM_UNITS
-
-        pro_dic, embedding_matrix = self.OJProblem.Problem2Tensor()
-        return  pro_dic, embedding_matrix,dataset_train, dataset_test, onehot_matrix
+        return pro_dic, embedding_matrix, dataset_train, dataset_test, onehot_matrix

@@ -4,7 +4,7 @@ import re
 import pickle
 import numpy as np
 import nltk
-#from nltk.corpus import stopwords as pw
+from nltk.corpus import stopwords as pw
 
 class OJProblemtextProcessor(object): #数据集名称
     DataName = ""
@@ -24,6 +24,7 @@ class OJProblemtextProcessor(object): #数据集名称
         self.word2IdPath = self.TmpDir + self.DataName+'_word2Id_' +self.LC2Str+'.txt'
         self.cantembedding = self.TmpDir +'cantembedding.txt'
         self.RawKnowledge2Problem = self.TmpDir + self.DataName+'_RawKnowledge2Problem.txt'
+        self.stopword = pw.words('english')
 
     def InitialData(self):
         f1 = open(self.TmpDir + self.DataName + self.LC2Str+ '_problemName2problemId.pkl', 'rb')
@@ -31,7 +32,7 @@ class OJProblemtextProcessor(object): #数据集名称
         self.problemName2problemId = pickle.load(f1)
         self.problemId2problemName = pickle.load(f2)
         f1.close(), f2.close()
-        print('self.problemName2problemId',len(self.problemName2problemId))
+        print('problem num',len(self.problemName2problemId))
     def Sentence2Words(self,raw_str):
         lemmatizer = nltk.WordNetLemmatizer()  # lemmatizer.lemmatize(word)
         # re_sentence
@@ -64,7 +65,7 @@ class OJProblemtextProcessor(object): #数据集名称
             with open(self.cantembedding, 'r') as f:
                 for word in f:
                     stopword.append(word.strip())
-            print('stopword', len(stopword))
+            print('stopword number', len(stopword))
             problemdic = {}
             index = 1000
             with open(self.InputprobemPath,'r',encoding='gb18030') as f:
@@ -101,7 +102,7 @@ class OJProblemtextProcessor(object): #数据集名称
             if i >= len(self.word2Id): continue
             embedding_vector = embeddings_index.get(word)
             if embedding_vector is not None:
-                embedding_matrix[i] = embedding_vector
+                embedding_matrix[i] = embedding_vector  # 这里只考虑了之前预训练过的词 那些没有的忽略了
             else:
                 cantembed += 1
                 print(word)
@@ -187,7 +188,7 @@ class OJProblemtextProcessor(object): #数据集名称
         return dataset_sim,embedding_matrix
 
 if __name__ == "__main__":
-   #nltk.download('stopwords')
+   nltk.download('stopwords')
    k = OJProblemtextProcessor([15,1000000,0.06,1],[10,1000000,0.02,1],['2005-01-01 23:47:31','2019-01-02 11:21:49'],OnlyRight=True)
    pro_dic, embedding_matrix = k.Problem2Tensor()
    print('pro_dic, embedding_matrix', pro_dic.shape,embedding_matrix.shape)

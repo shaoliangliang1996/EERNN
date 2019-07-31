@@ -46,8 +46,8 @@ class OJDataProcessor(object):
         with open(self.hdu_partproblem,'r') as f:
             for line in f:
                 self.proid = line.strip().split(',')
-        print('self.proid',len(self.proid))
-        self.RawSubmitRecord2CSV()
+        print('problem with labels number',len(self.proid))
+        #self.RawSubmitRecord2CSV()
         self.RawKnowledge2CSV()
 
     #将原始提交记录文件转化为CSV文件方便后期处理 
@@ -154,7 +154,7 @@ class OJDataProcessor(object):
         df = df[(df['sub_time']>=timeLC[0]) & (df['sub_time']<=timeLC[1])]
         #status
         df['status'] = df['status'].apply(convert_statue)
-
+        #drop problem without label
         df = df[df['PID'].isin(self.proid)]
         #filter problem return need delete problem
         print('is filtering problem\nthe filtered problem list is ')
@@ -208,8 +208,10 @@ class OJDataProcessor(object):
         if os.path.exists(self.TmpDir + self.DataName+self.LC2Str(userLC,problemLC,timeLC,OnlyRight) + '_EERNN_input.csv'):
             str = input("ReLoadSubmitRecordData (if you change userLC,problemLC,timeLC,OnlyRight.or reRawSubmitRecord2CSV ,please input y) y/n：");
             if str == 'y':
+                self.RawSubmitRecord2CSV()
                 self.FilterSubmitRecordData(userLC, problemLC, timeLC,OnlyRight)
         else:
+            self.RawSubmitRecord2CSV()
             self.FilterSubmitRecordData(userLC, problemLC, timeLC,OnlyRight)
         print('is LoadSubmitRecordData')
         with open(self.TmpDir + self.DataName+self.LC2Str(userLC,problemLC,timeLC,OnlyRight) + '_EERNN_input.csv','r') as f:
