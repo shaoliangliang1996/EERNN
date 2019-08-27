@@ -133,7 +133,7 @@ class OJDataProcessor(object):
             def cal_pro(v):
                 total_num = v[filter_id].count()
                 if filter_id == 'name':
-                    ac_num = v[v['status'] == 1]['PID'].nunique()
+                    ac_num = v[v['status'] == 1]['PID'].count()
                 else:
                     ac_num = v[v['status'] == 1]['PID'].count()
                 v['total'] = total_num
