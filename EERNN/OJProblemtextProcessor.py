@@ -98,7 +98,6 @@ class OJProblemtextProcessor(object): #数据集名称
         embedding_matrix = np.zeros((len(self.word2Id), EMBEDDING_DIM))
         cantembed = 0
         for word, i in self.word2Id.items():  # 字典里面的单词和索引
-            if i >= len(self.word2Id): continue
             embedding_vector = embeddings_index.get(word)
             if embedding_vector is not None:
                 embedding_matrix[i] = embedding_vector
